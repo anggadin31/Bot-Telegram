@@ -1,5 +1,5 @@
 # Bot-Telegram
-Digunakan untuk mengambil data dari database berdasarkan yang dicari dan menampilkannya di telegram
+Digunakan untuk mengambil data dari database berdasarkan yang dicari dan menampilkannya di telegram.
 Menu awal yang ditampilkan oleh bot yaitu sebagai berikut, dimana bot akan menampilkan beberapa pilihan yang bisa digunakan
 <p align="center">
   <img src="https://github.com/anggadin31/Bot-Telegram/blob/main/Screenshot/main.PNG?raw=true" width="350" title="hover text">
