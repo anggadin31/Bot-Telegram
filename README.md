@@ -28,7 +28,7 @@ Untuk menu kedua ada Cek IP OLT yang digunakan untuk mengetahui detail informasi
  <p align="center"> 
   <img src="https://github.com/anggadin31/Bot-Telegram/blob/main/Screenshot/label_qr.PNG?raw=true" width="350" title="hover text"> 
  </p>
- Data yang digunakan oleh menu Cek Label QR ODP diambil dari file DATA_QR_ODP.xlsx yang dapat dilihat di folder Database
+ Data yang digunakan oleh menu Cek Label QR ODP diambil dari file DATA_QR_ODP.xlsx yang dapat dilihat di folder Database.
  
  Untuk menu Service Name 1054 digunakan untuk memotong text yang diinput oleh user, sehingga user akan mendapatkan info mengenai Service ID
  <p align="center"> 
@@ -55,5 +55,5 @@ Untuk menu kedua ada Cek IP OLT yang digunakan untuk mengetahui detail informasi
  <p align="center"> 
   <img src="https://github.com/anggadin31/Bot-Telegram/blob/main/Screenshot/jadwal.PNG?raw=true" width="350" title="hover text"> 
  </p>
- Data yang digunakan oleh menu Cek Jadwal Daman ini diambil dari file JADWAL DESEMBER 2019.xlsx yang dapat dilihat pada folder Database
+ Data yang digunakan oleh menu Cek Jadwal Daman ini diambil dari file JADWAL DESEMBER 2019.xlsx yang dapat dilihat pada folder Database.
  Untuk menu terakhir yaitu menu Absensi masih dalam tahap pengembangan.
