@@ -279,25 +279,25 @@ class OdpLap():
         data = self.coll.find({'INET':inet})
         return [[x['STO'],x['GPON'],x['SLOT'],x['PORT'],x['INET'], x['ODP'], x['VALIDITAS']] for x in data]
     
-    # def __init__(self):
-    #     self.data = []
+    def __init__(self):
+        self.data = []
 
-    # def read_data(self):
-    #     path='D:\daman\DALAPA_VALIDASI_LAPANGAN.xlsx'
-    #     wb = load_workbook(path, data_only=True)
-    #     ws = wb['Sheet2']    
-    #     self.data = [[cell.value for cell in each] for each in ws.iter_rows(min_col=1, max_col=15, min_row=2)]
-    #     return self.data
+    def read_data(self):
+        path='D:\daman\DALAPA_VALIDASI_LAPANGAN.xlsx'
+        wb = load_workbook(path, data_only=True)
+        ws = wb['Sheet2']    
+        self.data = [[cell.value for cell in each] for each in ws.iter_rows(min_col=1, max_col=15, min_row=2)]
+        return self.data
         
-    # def print_data(self, odplap):
-    #     result = []
-    #     if any(odplap in sublist for sublist in self.data):
-    #         for i, x in enumerate(self.data):
-    #           if odplap in x:
-    #               result.append((self.data[i][2:6]+self.data[i][8:12]))
-    #         return result
-    #     else:
-    #         return False
+    def print_data(self, odplap):
+        result = []
+        if any(odplap in sublist for sublist in self.data):
+            for i, x in enumerate(self.data):
+              if odplap in x:
+                  result.append((self.data[i][2:6]+self.data[i][8:12]))
+            return result
+        else:
+            return False
 
 class Absen():
     def __init__(self):
