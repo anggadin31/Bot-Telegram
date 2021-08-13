@@ -325,18 +325,3 @@ class Absen():
             result.append(data[i][0])
             result.append(data[i][index])
         return result
-
-class isiAbsen():
-    def __init__(self):
-        self.scope = ['https://www.googleapis.com/auth/drive']
-        self.creds = ServiceAccountCredentials.from_json_keyfile_name('absen-daman-1375d6c522b2.json', self.scope)
-        self.client = gspread.authorize(self.creds)
-        # self.sheet = self.client.open("MONITORING GOLIVE KALSEL").worksheet('GOLIVE 2019')
-        self.sheet = self.client.open("dummy").worksheet(datetime.datetime.now().strftime("%b %Y"))
-        
-    def get_odp(self,odp):
-        # odp = 'ODP-BJM-FAK/076'
-        self.client.login()
-        target = self.sheet.findall(odp)
-        target_row = [self.sheet.row_values(each.row) for each in target]
-        return target_row
