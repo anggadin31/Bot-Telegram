@@ -1,27 +1,31 @@
 import sys
+import os
 from pymongo import MongoClient
-from bson.objectid import ObjectId
-from datetime import datetime, timedelta
+from datetime import datetime
 import re
 from models import *
-from fuzzywuzzy import fuzz, process
-from math import radians, cos, sin, asin, sqrt
-from operator import itemgetter
-import unicodedata
 from pprint import pprint
 
 class process_bot():
 
 	def __init__(self):
 		client = MongoClient()
+		self.dbnames = client.list_database_names()
 		self.db = client.daman
 		self.db_excelreport = Excelreport()
 		self.code = self.db_excelreport.get_odp()
 		self.db_idport = IDPort()
 		self.db_odpuim = OdpUim()
+		self.code_odpuim= self.db_odpuim.get_odp()
+		self.code_inetuim= self.db_odpuim.get_inet()
 		self.db_odplap = OdpLap()
+		self.code_odplap= self.db_odplap.get_odp()
+		self.code_inetlap= self.db_odplap.get_inet()
 		self.db_golive = Golive()
+		self.code_golive = self.db_golive.get_odp()
+		self.code_idport = self.db_idport.get_ipslotport()
 		self.db_qrodp = QrOdp()
+		self.code_qrodp = self.db_qrodp.get_odp()
 		self.db_jadwal = Absen()
 
 	def odpuim(self,text='WRONGCOMMAND'):
@@ -39,7 +43,6 @@ class process_bot():
 			bulan_r2c = data['BULAN R2C']
 			mitra = data['MITRA']
 			status_siis = data['STATUS SIIS']
-			tgl = data['TANGGAL']
 			resp = \
 			"{}\
 			\nKAP----: {}\
@@ -51,8 +54,7 @@ class process_bot():
 			\nTGL R2C--: {}\
 			\nMITRA---: {}\
 			\nSTATUS SIIS-: {}\
-			\nLok-: {},{}\
-			\nTgl Update: {}".format(text, kap, used, avai, port_olt, hostname, occ, tanggal_r2c, mitra, status_siis, lat, longi, tgl)
+			\nLok-: {},{}".format(text, kap, used, avai, port_olt, hostname, occ, tanggal_r2c, mitra, status_siis, lat, longi)
 		else:
 		    resp = 'Data tidak ditemukan. Perintah yang anda masukkan mungkin salah.'
 		return resp
@@ -77,69 +79,111 @@ class process_bot():
 		return resp
 
 	def cekOdpUim(self,text='WRONGCOMMAND'):
-		if len(self.db_odpuim.data)<1:
-			self.db_odpuim.read_data()
 		if text.isnumeric():
 			text = int(text)
-		hasil = self.db_odpuim.print_data(text)
-		if hasil == False:
-			resp = 'Data tidak ditemukan. Perintah yang anda masukkan mungkin salah.'
+			if text in self.code_inetuim:
+				data = self.db_odpuim.get_data_inet(text)
+				resp = "{}\nSTO|GPON|SLOT|PORT|NO. INET|ODP UIM|VALIDITAS\n".format(text)	
+				for each in data:
+					sto = each[0]
+					gpon = each[1]
+					slot = each[2]
+					port = each[3]
+					inet = each[4]
+					odp = each[5]
+					valid = each[6]
+					resp += "{}|{}|{}|{}|{}|{}|{}\n".format(sto,gpon,slot,port,inet,
+					odp,valid)
+			else:
+				resp = 'Data tidak ditemukan. Perintah yang anda masukkan mungkin salah.'
+
 		else:
-			resp = \
-			resp = "{}\nSTO|GPON|SLOT|PORT|NO. INET|ODP UIM|VALIDITAS\n".format(text)	
-			for each in hasil:
-				resp += "{}|{}|{}|{}|{}|{}|{}\n".format(each[0],each[1],each[2],each[3],each[4],
-					each[6],each[7])
+			if text in self.code_odpuim:
+				data = self.db_odpuim.get_data_odp(text)
+				resp = "{}\nSTO|GPON|SLOT|PORT|NO. INET|ODP UIM|VALIDITAS\n".format(text)	
+				for each in data:
+					sto = each[0]
+					gpon = each[1]
+					slot = each[2]
+					port = each[3]
+					inet = each[4]
+					odp = each[5]
+					valid = each[6]
+					resp += "{}|{}|{}|{}|{}|{}|{}\n".format(sto,gpon,slot,port,inet,
+					odp,valid)
+			else:
+				resp = 'Data tidak ditemukan. Perintah yang anda masukkan mungkin salah.'
 		return resp
 
 	def cekOdpLap(self,text='WRONGCOMMAND'):
-		if len(self.db_odplap.data)<1:
-			self.db_odplap.read_data()
 		if text.isnumeric():
 			text = int(text)
-		hasil = self.db_odplap.print_data(text)
-		if hasil == False:
-			resp = 'Data tidak ditemukan. Perintah yang anda masukkan mungkin salah.'
+			if text in self.code_inetuim:
+				data = self.db_odpuim.get_data_inet(text)
+				resp = "{}\nSTO|GPON|SLOT|PORT|NO. INET|ODP UIM|VALIDITAS\n".format(text)	
+				for each in data:
+					sto = each[0]
+					gpon = each[1]
+					slot = each[2]
+					port = each[3]
+					inet = each[4]
+					odp = each[5]
+					valid = each[6]
+					resp += "{}|{}|{}|{}|{}|{}|{}\n".format(sto,gpon,slot,port,inet,
+					odp,valid)
+			else:
+				resp = 'Data tidak ditemukan. Perintah yang anda masukkan mungkin salah.'
+
 		else:
-			resp = \
-			resp = "{}\nSTO|GPON|SLOT|PORT|NO. INET|ODP LAP|VALIDITAS\n".format(text)	
-			for each in hasil:
-				resp += "{}|{}|{}|{}|{}|{}|{}\n".format(each[0],each[1],each[2],each[3],each[4],
-					each[5],each[7])
+			if text in self.code_odpuim:
+				data = self.db_odpuim.get_data_odp(text)
+				resp = "{}\nSTO|GPON|SLOT|PORT|NO. INET|ODP UIM|VALIDITAS\n".format(text)	
+				for each in data:
+					sto = each[0]
+					gpon = each[1]
+					slot = each[2]
+					port = each[3]
+					inet = each[4]
+					odp = each[5]
+					valid = each[6]
+					resp += "{}|{}|{}|{}|{}|{}|{}\n".format(sto,gpon,slot,port,inet,
+					odp,valid)
+			else:
+				resp = 'Data tidak ditemukan. Perintah yang anda masukkan mungkin salah.'
 		return resp
 
 	def ipolt(self,text='WRONGCOMMAND'):
-		if len(self.db_idport.data)<1:
-			self.db_idport.read_data()
-		if self.db_idport.get_ipolt(text):
-			idport = self.db_idport.print_data(text)
-			resp = \
-			"{}\
-			\nID Port: {}".format(text, idport)
+		if text in self.code_idport:
+			data = self.db_idport.get_data(text)
+			idport = data['ID PORT']
+			resp = "{}\nID PORT : {}".format(text,idport)
 		else:
 		    resp = 'Data tidak ditemukan. Perintah yang anda masukkan mungkin salah.'
 		return resp
 
 	def cekGolive(self,text='WRONGCOMMAND'):
-		if len(self.db_golive.data)<1:
-			self.db_golive.read_data()
-		if self.db_golive.get_odp(text):
-			result = self.db_golive.print_data(text)
+		if text in self.code_golive:
+			data = self.db_golive.get_data(text)
+			odp_name = data['ODP_NAME']
+			lat = data['LAT']
+			lon = data['LON']
+			datel = data['DATEL']
+			sto = data['STO']
 			resp = "{}\nODP_NAME : {}\
 					  \nLAT,LON : {}, {}\
 					  \nDATEL : {}\
-					  \nSTO   : {}".format(text,result[0],result[1],result[2],result[3],result[4])
+					  \nSTO   : {}".format(text,odp_name,lat,lon,datel,sto)
 		else:
 		    resp = 'Data tidak ditemukan. Perintah yang anda masukkan mungkin salah.'
 		return resp
 
 	def cekQR(self,text='WRONGCOMMAND'):
-		if len(self.db_qrodp.data)<1:
-			self.db_qrodp.read_data()
-		if self.db_qrodp.get_odp(text):
-			result = self.db_qrodp.print_data(text)
-			resp = "NAMA ODP : {}\
-					\nQR CODE ODP : {}".format(result[0],result[2])
+		if text in self.code_qrodp:
+			data = self.db_qrodp.get_data(text)
+			odp_name = data['ODP_NAME']
+			qr = data['QR CODE']
+			resp = "ODP_NAME : {}\
+					\nQR CODE ODP : {}".format(odp_name,qr)
 		else:
 		    resp = 'Data tidak ditemukan. Perintah yang anda masukkan mungkin salah.'
 		return resp
@@ -247,6 +291,30 @@ class process_bot():
 			list_foto = os.listdir('D:\\daman\\app\\static\\img')
 		res_foto =  [i for i in list_foto if str(nama_odp)+'-' in i or str(nama_odp)+'.' in i]
 		return res_foto
+
+	def updateOdpUim(self):
+		self.db_odpuim.get_started()
+		return "Database sudah diupdate"
+
+	def updateOdpLap(self):
+		self.db_odplap.get_started()
+		return "Database sudah diupdate"	
+	
+	def updateGolive(self):
+		self.db_golive.get_started()
+		return "Database sudah diupdate"
+	
+	def updateExcelReport(self):
+		self.db_excelreport.get_started()
+		return "Database sudah diupdate"
+
+	def updateIdPort(self):
+		self.db_idport.get_started()
+		return "Database sudah diupdate"
+
+	def updateQrCode(self):
+		self.db_qrodp.get_started()
+		return "Database sudah diupdate"
 		
 	def handle_misvalue(self):
 		resp = "Data tidak ditemukan. Perintah yang anda masukkan mungkin salah atau ODP belum R2C."

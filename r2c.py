@@ -1,20 +1,14 @@
 import sys
-reload(sys)   
-sys.setdefaultencoding('utf-8')
+import os
 import time
 import telepot
 from telepot.loop import MessageLoop
-from telepot.namedtuple import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove, ForceReply
 from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
 from telepot.delegate import per_chat_id, create_open, pave_event_space,include_callback_query_chat_id 
 from models import *
-import logging
-from datetime import datetime, timedelta
 from processbot import process_bot
-import unicodedata
 
 processbot = process_bot()
-logging.basicConfig(filename="botr2c.log", level=logging.INFO)
 
 class ODPKalsel(telepot.helper.ChatHandler):
     keyboard = InlineKeyboardMarkup(
@@ -44,6 +38,29 @@ class ODPKalsel(telepot.helper.ChatHandler):
                     ],
                     [
                     InlineKeyboardButton(text='CEK JADWAL DAMAN', callback_data='jadwal'),
+                    ],
+                    [
+                    InlineKeyboardButton(text='UPDATE DATABASE', callback_data='update'),
+                    ],
+                    ]
+                )
+    keyboardUpdate = InlineKeyboardMarkup(
+                    inline_keyboard=[
+                    [
+                    InlineKeyboardButton(text='DATABASE GOLIVE', callback_data='database_golive'),
+                    ],
+                    [
+                    InlineKeyboardButton(text='DATABASE IP OLT', callback_data='database_odpuim'),
+                    ],
+                    [
+                    InlineKeyboardButton(text='DATABASE PEL UIM', callback_data='database_odpuimlist'),
+                    InlineKeyboardButton(text='DATABASE PEL LAP', callback_data='database_odplaplist'),
+                    ],
+                    [                  
+                    InlineKeyboardButton(text='DATABASE LABEL QR ODP', callback_data='database_cekqr'),
+                    ],
+                    [
+                    InlineKeyboardButton(text='DATABASE SERVICE PORT', callback_data='database_ipolt'),
                     ],
                     ]
                 )
@@ -82,9 +99,14 @@ class ODPKalsel(telepot.helper.ChatHandler):
     def on_chat_message(self, msg):
         self._count += 1
         content_type, chat_type, chat_id = telepot.glance(msg)
-        text_input = msg['text'].upper()
-        logging.info('{}::@{},{},{}'.format(datetime.utcnow()+timedelta(hours=8),msg['chat'].get('username'),self._state,text_input))
-        if self._state == 'odpuim':
+        if content_type == 'document':
+            file_id = msg['document']['file_id']
+        else:
+            text_input = msg['text'].upper()
+        if self._state == '':
+            self._send_message('Halo kaka...',self.keyboard)
+            self.close()
+        elif self._state == 'odpuim':
             resp = processbot.odpuim(text_input)
             self._send_message(resp,self.keyboard)
         elif self._state == 'ipolt':
@@ -108,23 +130,68 @@ class ODPKalsel(telepot.helper.ChatHandler):
         elif self._state == 'jadwal':
             resp = processbot.cekJadwal(text_input)
             self._send_message(resp,self.keyboard)
-        elif self._state == 'fotoodp':
-            res_foto = processbot.fotoodp(text_input,chat_id)
-            if res_foto:
-                for each in res_foto:
-                    if sys.version[0] == '3':
-                        img = open('D:\\mycode\\daman\\app\\static\\img\\{}'.format(each), 'rb')
-                    else:
-                        img = open('D:\\daman\\app\\static\\img\\{}'.format(each), 'rb')
-                    self.sender.sendPhoto(img)
-                    img.close()
-                self._send_message(':D',self.keyboard)
-            else:
-                self._send_message('Tidak terdapat foto untuk ODP tersebut atau pesan yang anda masukkan salah.',self.keyboard)
-            self._state = ''
-        else:
-            self._send_message('Halo kaka...',self.keyboard)
-            self.close()
+        elif self._state == 'database_odpuimlist':
+            os.remove("D:\daman\DALAPA_VALIDASI_UIM.xlsx")
+            file_name = "DALAPA_VALIDASI_UIM.xlsx" # or look up from msg
+            bot.download_file(file_id, os.path.join('D:\daman', file_name))
+            self._send_message('Database sedang diupdate mohon tunggu sebentar')
+            resp = processbot.updateOdpUim()
+            self._send_message(resp,self.keyboard)
+            os.execl(sys.executable, sys.executable, *sys.argv)
+        elif self._state == 'database_odplaplist':
+            os.remove("D:\daman\DALAPA_VALIDASI_LAPANGAN.xlsx")
+            file_name = "DALAPA_VALIDASI_LAPANGAN.xlsx" # or look up from msg
+            bot.download_file(file_id, os.path.join('D:\daman', file_name))
+            self._send_message('Database sedang diupdate mohon tunggu sebentar')
+            resp = processbot.updateOdpLap()
+            self._send_message(resp,self.keyboard)
+            os.execl(sys.executable, sys.executable, *sys.argv)
+        elif self._state == 'database_golive':
+            os.remove("D:\daman\CEK GOLIVE.xlsx")
+            file_name = "CEK GOLIVE.xlsx" # or look up from msg
+            bot.download_file(file_id, os.path.join('D:\daman', file_name))
+            self._send_message('Database sedang diupdate mohon tunggu sebentar')
+            resp = processbot.updateGolive()
+            self._send_message(resp,self.keyboard)
+            os.execl(sys.executable, sys.executable, *sys.argv)
+        elif self._state == 'database_odpuim':
+            os.remove("D:\daman\EXCEL REPORT_ODP.xlsx")
+            file_name = "EXCEL REPORT_ODP.xlsx" # or look up from msg
+            bot.download_file(file_id, os.path.join('D:\daman', file_name))
+            self._send_message('Database sedang diupdate mohon tunggu sebentar')
+            resp = processbot.updateExcelReport()
+            self._send_message(resp,self.keyboard)
+            os.execl(sys.executable, sys.executable, *sys.argv)
+        elif self._state == 'database_ipolt':
+            os.remove("D:\daman\ID Port OLT Banjarmasin (new update).xlsx")
+            file_name = "ID Port OLT Banjarmasin (new update).xlsx" # or look up from msg
+            bot.download_file(file_id, os.path.join('D:\daman', file_name))
+            self._send_message('Database sedang diupdate mohon tunggu sebentar')
+            resp = processbot.updateIdPort()
+            self._send_message(resp,self.keyboard)
+            os.execl(sys.executable, sys.executable, *sys.argv)
+        elif self._state == 'database_cekqr':
+            os.remove("D:\daman\DATA_QR_ODP.xlsx")
+            file_name = "DATA_QR_ODP.xlsx" # or look up from msg
+            bot.download_file(file_id, os.path.join('D:\daman', file_name))
+            self._send_message('Database sedang diupdate mohon tunggu sebentar')
+            resp = processbot.updateQrCode()
+            self._send_message(resp,self.keyboard)
+            os.execl(sys.executable, sys.executable, *sys.argv)
+        # elif self._state == 'fotoodp':
+        #     res_foto = processbot.fotoodp(text_input,chat_id)
+        #     if res_foto:
+        #         for each in res_foto:
+        #             if sys.version[0] == '3':
+        #                 img = open('D:\\mycode\\daman\\app\\static\\img\\{}'.format(each), 'rb')
+        #             else:
+        #                 img = open('D:\\daman\\app\\static\\img\\{}'.format(each), 'rb')
+        #             self.sender.sendPhoto(img)
+        #             img.close()
+        #         self._send_message(':D',self.keyboard)
+        #     else:
+        #         self._send_message('Tidak terdapat foto untuk ODP tersebut atau pesan yang anda masukkan salah.',self.keyboard)
+        #     self._state = ''
 
     def on_callback_query(self, msg):
         query_id, from_id, query_data = telepot.glance(msg, flavor='callback_query')
@@ -152,6 +219,27 @@ class ODPKalsel(telepot.helper.ChatHandler):
         elif query_data == 'jadwal':
             self._state = 'jadwal'
             self._send_message('Masukkan Tanggal: \nContoh: 20')
+        elif query_data == 'update':
+            self._state = 'update'
+            self._send_message('Pilih database yang ingin diupdate',self.keyboardUpdate)
+        elif query_data == 'database_odpuimlist':
+            self._state = 'database_odpuimlist'
+            self._send_message('Kirim file dengan nama DALAPA_VALIDASI_UIM dan pastikan format sudah sesuai') 
+        elif query_data == 'database_odplaplist':
+            self._state = 'database_odplaplist'
+            self._send_message('Kirim file dengan nama DALAPA_VALIDASI_LAPANGAN dan pastikan format sudah sesuai') 
+        elif query_data == 'database_golive':
+            self._state = 'database_golive'
+            self._send_message('Kirim file dengan nama CEK GOLIVE dan pastikan format sudah sesuai')
+        elif query_data == 'database_odpuim':
+            self._state = 'database_odpuim'
+            self._send_message('Kirim file dengan nama EXCEL REPORT_ODP dan pastikan format sudah sesuai')
+        elif query_data == 'database_ipolt':
+            self._state = 'database_ipolt'
+            self._send_message('Kirim file dengan nama ID Port OLT Banjarmasin (new update) dan pastikan format sudah sesuai')
+        elif query_data == 'database_cekqr':
+            self._state = 'database_cekqr'
+            self._send_message('Kirim file dengan nama DATA_QR_ODP dan pastikan format sudah sesuai')
         elif query_data == 'fotoodp':
             self._state = 'fotoodp'
             self._send_message('Masukkan nama ODP: \nContoh: ODP-BJM-FAK/005')
@@ -168,11 +256,8 @@ Layanan UIM: Informasi layanan berdasarkan UIM\n\
 Layanan LAP: Posisi nomor layanan berdasarkan survey lapangan\n\
 Foto ODP: Foto ODP hasil survai tim validasi data\n\
                 ',self.keyboard)
-       
-if sys.version[0] == '3':
-    TOKEN = '694699130:AAG4S3Tb9uxxxPHjbl5fP-QiNsjOehOhieM'
-else:
-    TOKEN = '1849820437:AAEVVY2NmNQ3b6eM9oy3PEd4yyenHERgQws'
+
+TOKEN = '1838698997:AAFpae5AxmpNMuI0la3GFLokT4DOF50UmZU'
 bot = telepot.DelegatorBot(TOKEN, [
     include_callback_query_chat_id(
     pave_event_space())(
