@@ -178,20 +178,20 @@ class ODPKalsel(telepot.helper.ChatHandler):
             resp = processbot.updateQrCode()
             self._send_message(resp,self.keyboard)
             os.execl(sys.executable, sys.executable, *sys.argv)
-        # elif self._state == 'fotoodp':
-        #     res_foto = processbot.fotoodp(text_input,chat_id)
-        #     if res_foto:
-        #         for each in res_foto:
-        #             if sys.version[0] == '3':
-        #                 img = open('D:\\mycode\\daman\\app\\static\\img\\{}'.format(each), 'rb')
-        #             else:
-        #                 img = open('D:\\daman\\app\\static\\img\\{}'.format(each), 'rb')
-        #             self.sender.sendPhoto(img)
-        #             img.close()
-        #         self._send_message(':D',self.keyboard)
-        #     else:
-        #         self._send_message('Tidak terdapat foto untuk ODP tersebut atau pesan yang anda masukkan salah.',self.keyboard)
-        #     self._state = ''
+        elif self._state == 'fotoodp':
+            res_foto = processbot.fotoodp(text_input,chat_id)
+            if res_foto:
+                for each in res_foto:
+                    if sys.version[0] == '3':
+                        img = open('D:\\mycode\\daman\\app\\static\\img\\{}'.format(each), 'rb')
+                    else:
+                        img = open('D:\\daman\\app\\static\\img\\{}'.format(each), 'rb')
+                    self.sender.sendPhoto(img)
+                    img.close()
+                self._send_message(':D',self.keyboard)
+            else:
+                self._send_message('Tidak terdapat foto untuk ODP tersebut atau pesan yang anda masukkan salah.',self.keyboard)
+            self._state = ''
 
     def on_callback_query(self, msg):
         query_id, from_id, query_data = telepot.glance(msg, flavor='callback_query')
